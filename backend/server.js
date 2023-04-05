@@ -6,6 +6,7 @@ const app = express()
 const port = 9000
 
 app.use(fileUpload());
+app.use(express.json())
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(`${__dirname}/../frontend/index.html`))
@@ -79,6 +80,26 @@ app.post('/upload', (req, res) => {
     res.json(imageName); // imageName = "pelda"
   });
 });
+
+app.post('/new', (req, res) => {
+	fs.readFile(`${__dirname}/data/data.json`, (err, data) => {
+			if (err) res.send("reading error")
+			else {
+					console.log("req",req.body);
+					const usersData = JSON.parse(data);
+					const lastId = usersData[usersData.length-1].id
+					usersData.push({id: lastId + 1, ...req.body});
+
+					fs.writeFile(`${__dirname}/data/data.json`, JSON.stringify(usersData, null, 4), err => {
+							if (err) {
+								res.send("writing error")
+							}else {
+								res.send(req.body);
+							}
+						}) 
+			}
+	})
+})
 
 
 
